@@ -1,30 +1,29 @@
-﻿using Microsoft.AspNetCore.Mvc.Filters;
-using System;
+﻿using System;
 using System.IO;
-using System.Web.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
 
-namespace LR11
-
+public class LogActionFilter : IActionFilter
 {
-    public class LogActionFilter : ActionFilterAttribute
+    public void OnActionExecuting(ActionExecutingContext context)
     {
-        public override void OnActionExecuting(ActionExecutingContext filterContext)
+
+        LogToFile($"Executing {context.ActionDescriptor.DisplayName} at {DateTime.Now}");
+    }
+
+    public void OnActionExecuted(ActionExecutedContext context)
+    {
+
+        LogToFile($"Executed {context.ActionDescriptor.DisplayName} at {DateTime.Now}");
+    }
+
+    private void LogToFile(string message)
+    {
+
+        string logFilePath = "action_log.txt";
+
+        using (StreamWriter writer = new StreamWriter(logFilePath, true))
         {
-            string controllerName = filterContext.ActionDescriptor.ControllerDescriptor.ControllerName;
-            string actionName = filterContext.ActionDescriptor.ActionName;
-            string logMessage = $"Action '{actionName}' in controller '{controllerName}' called at {DateTime.Now}";
-
-            WriteToLogFile(logMessage);
-        }
-
-        private void WriteToLogFile(string message)
-        {
-            string filePath = @"C:\Logs\actionLog.txt"; 
-
-            using (StreamWriter writer = File.AppendText(filePath))
-            {
-                writer.WriteLine(message);
-            }
+            writer.WriteLine(message);
         }
     }
 }
